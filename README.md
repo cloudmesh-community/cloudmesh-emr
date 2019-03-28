@@ -1,21 +1,14 @@
-# cloudmesh.emr
+Documentation
+=============
 
-put your documentation on how to use it here
+ this will all be integrated in 
+ cloudmesh-community/cloudmesh.emr
 
-## Install
+* https://github.com/cloudmesh/cloudmesh.cmd5
+* https://github.com/cloudmesh-community/cm
 
-use source install from git
+## OpenAPI
 
-for now cloudmesh must be installed form source see
+This will start the service
 
-....
-
-```bash
-$ git clone https://github.com/cloudmesh-community/cloudmesh.emr.git
-$ cd cloudmesh.emr
-$ pip install -e .
-```
-
-## Usage
-
-...
+cms openapi start cloudmesh/openapi/emr.yaml

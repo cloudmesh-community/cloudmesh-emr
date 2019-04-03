@@ -17,13 +17,13 @@ consumes:
 produces:
   - "application/json"
 paths:
-  /list_cluster:
+  /list_clusters:
     get:
       operationId: cloudmesh.emr.openapi.cloudmesh.emr.list_clusters
-      description: "Returns the clusters visible to this account."
+      description: "Returns details of clusters visible to this account."
       parameters:
         - name: status
-          description: "The status of the cluster to search for. [default: all]."
+          description: "The status of the cluster to search for."
           in: query
           type: string
           required: false
@@ -32,6 +32,89 @@ paths:
       responses:
         "200":
           description: "Cluster Listing"
+          schema:
+            $ref: "#/definitions/emr"
+  /list_instances:
+    get:
+      operationId: cloudmesh.emr.openapi.cloudmesh.emr.list_instances
+      description: "Returns instance details for a given cluster, status, and type."
+      parameters:
+        - name: cluster
+          description: "The ClusterID to list instances for."
+          in: query
+          type: string
+          required: true
+        - name: status
+          description: "The state of instance to search for."
+          in: query
+          type: string
+          required: false
+        - name: type
+          description: "The type of instance to search for."
+          in: query
+          type: string
+          required: false
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Instance Listing"
+          schema:
+            $ref: "#/definitions/emr"
+  /list_steps:
+    get:
+      operationId: cloudmesh.emr.openapi.cloudmesh.emr.list_steps
+      description: "Returns details of the steps running on the cluster."
+      parameters:
+        - name: cluster
+          description: "The ClusterID to list steps for."
+          in: query
+          type: string
+          required: true
+        - name: status
+          description: "The status of the step to search for."
+          in: query
+          type: string
+          required: false
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Step Listing"
+          schema:
+            $ref: "#/definitions/emr"
+  /describe:
+    get:
+      operationId: cloudmesh.emr.openapi.cloudmesh.emr.describe
+      description: "Describes a cluster."
+      parameters:
+        - name: cluster
+          description: "The ClusterID to list instances for."
+          in: query
+          type: string
+          required: true
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Cluster Description"
+          schema:
+            $ref: "#/definitions/emr"
+  /stop:
+    get:
+      operationId: cloudmesh.emr.openapi.cloudmesh.emr.stop
+      description: "Stops a cluster."
+      parameters:
+        - name: cluster
+          description: "The ClusterID to stop."
+          in: query
+          type: string
+          required: true
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Cluster Stopped"
           schema:
             $ref: "#/definitions/emr"
 definitions:

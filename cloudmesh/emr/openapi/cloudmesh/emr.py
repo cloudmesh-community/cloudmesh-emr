@@ -1,41 +1,26 @@
 from __future__ import print_function
 from cloudmesh.emr.api.manager import Manager
 
-'''
-list_clusters - done
-list_instances - done
-list_steps - done
-describe - done
-stop
-start
-upload
-copy
-run
-'''
-
 
 def start():
     pass
 
 
 def get_list_from_arg(arg, valid):
-    if arg is None:
+    arg_split = arg.split(",")
+
+    if 'all' in arg_split:
         return ['all']
     else:
-        arg_split = arg.split(",")
+        result = []
 
-        if 'all' in arg_split:
-            return ['all']
-        else:
-            result = []
-
-            for arg in arg_split:
-                if arg in valid:
-                    result += [arg]
-            return result
+        for arg in arg_split:
+            if arg in valid:
+                result += [arg]
+        return result
 
 
-def list_clusters(status=None):
+def list_clusters(status='all'):
     emr = Manager()
 
     val_state = ['start', 'boot', 'run', 'wait', 'terminating', 'shutdown', 'error', 'all']
@@ -44,7 +29,7 @@ def list_clusters(status=None):
     return emr.list_clusters({'status': states})
 
 
-def list_instances(cluster, status=None, type=None):
+def list_instances(cluster, status='all', type='all'):
     emr = Manager()
 
     val_state = ['start', 'provision', 'boot', 'run', 'down']
@@ -56,7 +41,7 @@ def list_instances(cluster, status=None, type=None):
     return emr.list_instances({'<CLUSTERID>': cluster, 'status': states, 'type': types})
 
 
-def list_steps(cluster, status=None):
+def list_steps(cluster, status='all'):
     emr = Manager()
 
     val_state = ['pending', 'canceling', 'running', 'completed', 'cancelled', 'failed', 'interrupted']
@@ -76,50 +61,27 @@ def stop(cluster):
 
     return emr.stop_cluster({'<CLUSTERID>': cluster})
 
-'''
 
-    def start_cluster(self, args):
-        client = self.get_client()
+def start(name, master='m3.xlarge', node='m3.xlarge', count=3):
+    emr = Manager()
 
-        setup = {'MasterInstanceType': args['master'], 'SlaveInstanceType': args['node'],
-                 'InstanceCount': int(args['count']), 'KeepJobFlowAliveWhenNoSteps': True,
-                 'TerminationProtected': False}
+    return emr.start_cluster({'<NAME>': name, 'master': master, 'node': node, 'count': count})
 
-        steps = [{'Name': 'Debugging', 'ActionOnFailure': 'TERMINATE_CLUSTER',
-                 'HadoopJarStep': { 'Jar': 'command-runner.jar', 'Args': ['state-pusher-script']}}]
 
-        results = client.run_job_flow(Name=args['<NAME>'], ReleaseLabel="emr-5.22.0", Instances=setup,
-                                      Applications=[{'Name': 'Spark'}, {'Name': 'Hadoop'}], VisibleToAllUsers=True,
-                                      Steps=steps, JobFlowRole='EMR_EC2_DefaultRole', ServiceRole='EMR_DefaultRole')
+def upload(file, bucket, bucketname):
+    emr = Manager()
 
-        return {"cloud": "aws", "kind": "emr", "cluster": results['JobFlowId'], "name": args['<NAME>'],
-                "status": "Starting"}
+    return emr.upload_file({'<FILE>': file, '<BUCKET>': bucket, '<BUCKETNAME>': bucketname})
 
-    def upload_file(self, args):
-        client = self.get_client(service='s3')
-        client.upload_file(args['<FILE>'], args['<BUCKET>'], args['<BUCKETNAME>'])
 
-        return {"cloud": "aws", "kind": "file", "bucket": args['<BUCKET>'], "file": args['<BUCKETNAME>']}
+def copy(cluster, bucket, bucketname):
+    emr = Manager()
 
-    def copy_file(self, args):
-        client = self.get_client()
+    return emr.copy_file({'<CLUSTERID>': cluster, '<BUCKET>': bucket, '<BUCKETNAME>': bucketname})
 
-        s3 = 's3://' + args['<BUCKET>'] + '/' + args['<BUCKETNAME>']
 
-        step = {'Name': 'Copy ' + args['<BUCKETNAME>'], 'ActionOnFailure': 'CANCEL_AND_WAIT',
-                'HadoopJarStep': {'Jar': 'command-runner.jar', 'Args': ['aws', 's3', 'cp', s3, '/home/hadoop/']}}
+def run(cluster, bucket, bucketname):
+    emr = Manager()
 
-        response = client.add_job_flow_steps(JobFlowId=args['<CLUSTERID>'], Steps=[step])
-        return response
-
-    def run(self, args):
-        client = self.get_client()
-
-        step = {'Name': 'Run ' + args['<BUCKETNAME>'], 'ActionOnFailure': 'CANCEL_AND_WAIT',
-                'HadoopJarStep': {'Jar': 'command-runner.jar', 'Args': ['spark-submit',
-                                                                        's3://' + args['<BUCKET>'] + '/' +
-                                                                        args['<BUCKETNAME>']]}}
-
-        response = client.add_job_flow_steps(JobFlowId=args['<CLUSTERID>'], Steps=[step])
-        return response'''
+    return emr.run({'<CLUSTERID>': cluster, '<BUCKET>': bucket, '<BUCKETNAME>': bucketname})
 

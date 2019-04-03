@@ -117,6 +117,119 @@ paths:
           description: "Cluster Stopped"
           schema:
             $ref: "#/definitions/emr"
+  /start:
+    get:
+      operationId: cloudmesh.emr.openapi.cloudmesh.emr.start
+      description: "Stops a cluster."
+      parameters:
+        - name: name
+          description: "The name of the cluster to start."
+          in: query
+          type: string
+          required: true
+        - name: count
+          description: "The number of servers to use for the cluster."
+          in: query
+          type: string
+          required: true
+        - name: master
+          description: "The instance type to use for the Master node."
+          in: query
+          type: string
+          required: false
+        - name: node
+          description: "The instance type to use for the Worker nodes."
+          in: query
+          type: string
+          required: false
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Cluster Started"
+          schema:
+            $ref: "#/definitions/emr"
+  /upload:
+    get:
+      operationId: cloudmesh.emr.openapi.cloudmesh.emr.upload
+      description: "Upload a file to an S3 bucket for processing."
+      parameters:
+        - name: file
+          description: "The filename to upload from the REST server."
+          in: query
+          type: string
+          required: true
+        - name: bucket
+          description: "The bucket to upload the file to."
+          in: query
+          type: string
+          required: true
+        - name: bucketname
+          description: "The name to save the file as in the bucket."
+          in: query
+          type: string
+          required: true
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Cluster Started"
+          schema:
+            $ref: "#/definitions/emr"
+  /copy:
+    get:
+      operationId: cloudmesh.emr.openapi.cloudmesh.emr.copy
+      description: "Copy a file from an s3 bucket to the master node's hadoop directory."
+      parameters:
+        - name: cluster
+          description: "The ClusterID to copy to."
+          in: query
+          type: string
+          required: true
+        - name: bucket
+          description: "The bucket to use as the source."
+          in: query
+          type: string
+          required: true
+        - name: bucketname
+          description: "The name to bucket object to copy."
+          in: query
+          type: string
+          required: true
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Cluster Started"
+          schema:
+            $ref: "#/definitions/emr"
+  /run:
+    get:
+      operationId: cloudmesh.emr.openapi.cloudmesh.emr.run
+      description: "Submit a file to Spark."
+      parameters:
+        - name: cluster
+          description: "The ClusterID to use."
+          in: query
+          type: string
+          required: true
+        - name: bucket
+          description: "The bucket to use as the source."
+          in: query
+          type: string
+          required: true
+        - name: bucketname
+          description: "The name of the program file to run."
+          in: query
+          type: string
+          required: true
+      produces:
+        - "application/json"
+      responses:
+        "200":
+          description: "Cluster Started"
+          schema:
+            $ref: "#/definitions/emr"
 definitions:
   emr:
     type: "object"

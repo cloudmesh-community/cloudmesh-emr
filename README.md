@@ -25,4 +25,24 @@ The only external library required is boto3, which should automatically be insta
 
 ## Commandline Usage
 
+cloudmesh.emr provides functions to manage AWS EMR clusters. Their usage is described below.
+
+### list
+
+```bash
+$ cms emr list clusters [--status=STATUS...] [--format=FORMAT]
+```
+
+### describe
+
+### stop
+
+### start
+
+### upload
+
+### copy
+
+### run
+
 ## OpenAPI

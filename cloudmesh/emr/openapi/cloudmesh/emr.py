@@ -38,7 +38,7 @@ def list_instances(cluster, status='all', type='all'):
     val_type = ['master', 'core', 'task']
     types = get_list_from_arg(type, val_type)
 
-    return emr.list_instances({'<CLUSTERID>': cluster, 'status': states, 'type': types})
+    return emr.list_instances({'CLUSTERID': cluster, 'status': states, 'type': types})
 
 
 def list_steps(cluster, status='all'):
@@ -47,41 +47,41 @@ def list_steps(cluster, status='all'):
     val_state = ['pending', 'canceling', 'running', 'completed', 'cancelled', 'failed', 'interrupted']
     states = get_list_from_arg(status, val_state)
 
-    return emr.list_steps({'<CLUSTERID>': cluster, 'state': states})
+    return emr.list_steps({'CLUSTERID': cluster, 'state': states})
 
 
 def describe(cluster):
     emr = Manager()
 
-    return emr.describe_cluster({'<CLUSTERID>': cluster})
+    return emr.describe_cluster({'CLUSTERID': cluster})
 
 
 def stop(cluster):
     emr = Manager()
 
-    return emr.stop_cluster({'<CLUSTERID>': cluster})
+    return emr.stop_cluster({'CLUSTERID': cluster})
 
 
 def start(name, master='m3.xlarge', node='m3.xlarge', count=3):
     emr = Manager()
 
-    return emr.start_cluster({'<NAME>': name, 'master': master, 'node': node, 'count': count})
+    return emr.start_cluster({'NAME': name, 'master': master, 'node': node, 'count': count})
 
 
 def upload(file, bucket, bucketname):
     emr = Manager()
 
-    return emr.upload_file({'<FILE>': file, '<BUCKET>': bucket, '<BUCKETNAME>': bucketname})
+    return emr.upload_file({'FILE': file, 'BUCKET': bucket, 'BUCKETNAME': bucketname})
 
 
 def copy(cluster, bucket, bucketname):
     emr = Manager()
 
-    return emr.copy_file({'<CLUSTERID>': cluster, '<BUCKET>': bucket, '<BUCKETNAME>': bucketname})
+    return emr.copy_file({'CLUSTERID': cluster, 'BUCKET': bucket, 'BUCKETNAME': bucketname})
 
 
 def run(cluster, bucket, bucketname):
     emr = Manager()
 
-    return emr.run({'<CLUSTERID>': cluster, '<BUCKET>': bucket, '<BUCKETNAME>': bucketname})
+    return emr.run({'CLUSTERID': cluster, 'BUCKET': bucket, 'BUCKETNAME': bucketname})
 

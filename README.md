@@ -21,7 +21,11 @@ $ cd cloudmesh.emr
 $ pip install -e .
 ```
 
-The only external library required is boto3, which should automatically be installed by pip.
+The only external library required is boto3, which should automatically be installed by pip. Once
+the package is installed, the cloudmesh4.yaml file requires the following keys to be filled
+out by the enduser:
+
+
 
 ## Commandline Usage
 
@@ -29,9 +33,17 @@ cloudmesh.emr provides functions to manage AWS EMR clusters. Their usage is desc
 
 ### list
 
+The list subcommand provides high level details of clusters, instances, and steps (tasks). It
+allows the user to quickly examine all available clusters and nodes and to monitor thier status.
+
+To list clusters associated with the AWS account, use:
+
 ```bash
 $ cms emr list clusters [--status=STATUS...] [--format=FORMAT]
 ```
+
+
+
 
 ### describe
 

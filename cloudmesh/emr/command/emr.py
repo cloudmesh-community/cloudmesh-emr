@@ -65,7 +65,6 @@ class EmrCommand(PluginCommand):
         """
 
         map_parameters(arguments, 'status', 'format', 'type', 'master', 'node', 'count', 'state')
-        #print(arguments)
 
         emr = Manager()
 
@@ -110,7 +109,7 @@ class EmrCommand(PluginCommand):
             # Fixing formatting.
             apps = ""
             for application in cluster["Applications"]:
-                apps += application["Name"] + " " + application["Version"] + ", "
+                apps += "{} {}, ".format(application["Name"], application["Version"])
             apps = apps[:-2]
             cluster["Applications"] = apps
             cluster = [cluster]
@@ -126,19 +125,19 @@ class EmrCommand(PluginCommand):
                                     output=arguments['format']))
         elif arguments['stop']:
             cluster = emr.stop_cluster(arguments)
-            print(cluster['name'] + ": " + cluster["status"])
+            print("{}: {}".format(cluster['name'], cluster["status"]))
         elif arguments['start']:
             cluster = emr.start_cluster(arguments)
-            print(cluster['name'] + ": " + cluster['cluster'] + " " + cluster["status"])
+            print("{}: {} {}".format(cluster['name'], cluster['cluster'], cluster["status"]))
         elif arguments['upload']:
             upload = emr.upload_file(arguments)
-            print("File uploaded to: " + upload['bucket'] + " - " + upload['file'])
+            print("File uploaded to: {} - {}".format(upload['bucket'], upload['file']))
         elif arguments['copy']:
             results = emr.copy_file(arguments)
-            print("Copy step is running. Step ID: " + results['StepIds'][0])
+            print("Copy step is running. Step ID: {}".format(results['StepIds'][0]))
         elif arguments['run']:
             results = emr.run(arguments)
-            print("Run step is running. Step ID: " + results['StepIds'][0])
+            print("Run step is running. Step ID: {}".format(results['StepIds'][0]))
 
         return ""
 

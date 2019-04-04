@@ -113,9 +113,9 @@ class Manager(object):
     def copy_file(self, args):
         client = self.get_client()
 
-        s3 = 's3://' + args['BUCKET'] + '/' + args['BUCKETNAME']
+        s3 = 's3://{}/{}'.format(args['BUCKET'], args['BUCKETNAME'])
 
-        step = {'Name': 'Copy ' + args['BUCKETNAME'], 'ActionOnFailure': 'CANCEL_AND_WAIT',
+        step = {'Name': 'Copy {}'.format(args['BUCKETNAME']), 'ActionOnFailure': 'CANCEL_AND_WAIT',
                 'HadoopJarStep': {'Jar': 'command-runner.jar', 'Args': ['aws', 's3', 'cp', s3, '/home/hadoop/']}}
 
         response = client.add_job_flow_steps(JobFlowId=args['CLUSTERID'], Steps=[step])
@@ -124,10 +124,10 @@ class Manager(object):
     def run(self, args):
         client = self.get_client()
 
-        step = {'Name': 'Run ' + args['BUCKETNAME'], 'ActionOnFailure': 'CANCEL_AND_WAIT',
+        step = {'Name': 'Run {}'.format(args['BUCKETNAME']), 'ActionOnFailure': 'CANCEL_AND_WAIT',
                 'HadoopJarStep': {'Jar': 'command-runner.jar', 'Args': ['spark-submit',
-                                                                        's3://' + args['BUCKET'] + '/' +
-                                                                        args['BUCKETNAME']]}}
+                                                                        's3://{}/{}'.format(args['BUCKET'],
+                                                                                            args['BUCKETNAME'])]}}
 
         response = client.add_job_flow_steps(JobFlowId=args['CLUSTERID'], Steps=[step])
         return response

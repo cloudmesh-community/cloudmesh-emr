@@ -29,9 +29,8 @@ def readfile(filename):
 # add minimum requirements here
 #
 requiers = """
-psutil
-pygments
 boto3
+cloudmesh-cmd5
 """.split("\n")
 
 # dependency_links = ['http://github.com/nicolaiarocci/eve.git@develop']
@@ -41,11 +40,11 @@ version = readfile("VERSION")[0].strip()
 with open('README.md') as f:
     long_description = f.read()
 
-NAME = "cloudmesh.emr"
+NAME = "cloudmesh-emr"
 DESCRIPTION = "A command called emr and foo for the cloudmesh shell"
-AUTHOR = "Gregor von Laszewski"
+AUTHOR = "Anthony Duer, Gregor von Laszewski"
 AUTHOR_EMAIL = "laszewski@gmail.com"
-URL = "https://github.com/cloudmesh/cloudmesh.emr"
+URL = "https://github.com/cloudmesh/cloudmesh-emr"
 
 setup(
     name=NAME,
@@ -64,15 +63,12 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
     ],
     install_requires=requiers,
     tests_require=[
         "flake8",
         "coverage",
-        "tox",
     ],
     zip_safe=False,
     namespace_packages=['cloudmesh'],

@@ -3,15 +3,15 @@ Documentation
 
 ## Introduction
 
-cloudmesh.emr allows cloudmesh users to easily iteract with Amazon's Elastic Map Reduce services with a particular focus
+cloudmesh-emr allows cloudmesh users to easily iteract with Amazon's Elastic Map Reduce services with a particular focus
 on using Apache Spark. Users are able to manage the entire lifecycle of Apache Spark clusters from the commandline, 
 including uploading data and files to the cluster, launching the analysis, and checking in on the status of tasks and 
-clusters. The goal of cloudmesh.emr is to abstract away a lot of the details of launching and managing a cluster by 
+clusters. The goal of cloudmesh-emr is to abstract away a lot of the details of launching and managing a cluster by 
 including commonsense defaults while allowing the user the flexibility to specify different options, if needed.
 
 ## Installation
 
-cloudmesh.emr is best installed via git and pip as follows:
+cloudmesh-emr is best installed via git and pip as follows:
 
 ```bash
 $ git clone https://github.com/cloudmesh/cloudmesh-emr.git
@@ -29,12 +29,25 @@ configuration utility:
 
 The first two values are provided when you create a user on your AWS account's IAM management console. The third one is 
 user provided and must be a valid AWS region (e.g. us-west-1, eu-west-3, etc.). A full listing of AWS regions is 
-available [here](https://docs.aws.amazon.com/general/latest/gr/rande.html). Once these keys are provided, cloudmesh.emr
+available [here](https://docs.aws.amazon.com/general/latest/gr/rande.html). Once these keys are provided, cloudmesh-emr
 will be able to authenticate with the correct account and region and begin managing your EMR resources.
+
+Finally, before beginning use of cloudmesh-emr, one must start up the local MongoDB database as cloudmesh-emr stores the
+results of each query into the cloudmesh collection. You can start MongoDB by using the following command:
+
+```bash
+$ cms admin mongo start
+```
+
+If Mongo has not been installed previously, you can install it via cloudmesh by utilizing the admin command:
+
+```bash
+$ cms admin mongo install
+```
 
 ## Commandline Usage
 
-cloudmesh.emr provides a simple way for users to manage AWS EMR clusters.
+cloudmesh-emr provides a simple way for users to manage AWS EMR clusters.
 
 ### list
 
@@ -48,51 +61,112 @@ $ cms emr list instances CLUSTERID [--status=STATUS...] [--type=TYPE...] [--form
 $ cms emr list steps CLUSTERID [--state=STATE...] [--format=FORMAT]
 ```
 
-Valid options for the --format argument are: `table` (default), `csv`, `json`, `yaml`, and `dict`. The `table` option will print 
-a formatted table to the terminal while `dict` option will print a raw dictionary. The `csv`, `json`, and `yaml`
-options will save the output to the specified file format.
+Valid options for the `--format` argument are: `table` (default), `csv`, `json`, `yaml`, and `dict`. The `table` option
+will print a formatted table to the terminal while `dict` option will print a raw dictionary. The `csv`, `json`, and
+`yaml` options will save the output to the specified file format.
 
-Valid options for the --status flag when listing clusters are: `all` (default), `start`, `boot`, `run`, `wait`,
+Valid options for the `--status` flag when listing clusters are: `all` (default), `start`, `boot`, `run`, `wait`,
 `terminating`, `shutdown`, and `error`. This option may be repeated multiple times to list a union of clusters in a
 particular status. For example, `--status=start --status=boot` will list all clusters that are either booting or 
 starting. If the `all` flag is present, all clusters will be listed regardless of other flags present. 
 
-When viewing instances, the --status flag allows for: `all` (default), `start`, `provision`, `run`, and `down`. Like
-above, the `all` option will supercede all other status flags included in the command. Otherwise, multiple status flags
+When viewing instances, the `--status` flag allows for: `all` (default), `start`, `provision`, `run`, and `down`. Like
+above, the `all` option will supersede all other status flags included in the command. Otherwise, multiple status flags
 may be included in order to view the union of those statuses.  
 
-The --type flag in the list instances command accepts: `all`, `master`, `core`, and `task`. A master node manages core
+The `--type` flag in the list instances command accepts: `all`, `master`, `core`, and `task`. A master node manages core
 and tasks nodes. Task nodes are unique in that they only provide worker threads to Spark and do not count as individual
 data nodes. See the description
 [here](https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-master-core-task-nodes.html).
 
-Finally, for the --state flag when viewing tasks, the following options are allowed: `all` (default), `pending`,
+Finally, for the `--state` flag when viewing tasks, the following options are allowed: `all` (default), `pending`,
 `canceling`, `running`, `completed`, `cancelled`, `failed`, `interrupted`.
+
+The `CLUSTERID` is the AWS cluster ID, usually provided in the format similar to 'j-XXXXXXXXXXXXX'.
 
 ### describe
 
+The describe command queries AWS for key characteristics of a specified cluster. The command is used as follows:
 
+```bash
+$ cms emr describe CLUSTERID [--format=FORMAT]
+```
+
+The command will provide the cluster's state, location, type, hours, and what applications are installed on teh cluster 
+(typically Hadoop and Spark for EMR). As with the list command, the `CLUSTERID` is the one created by AWS to identify
+your cluster. The `--format` flag allows you to print the result table to the terminal; a CSV, YAML, or JSON file; or to
+the terminal as a dictionary (useful for piping to other commands).
+
+### start
+
+The start command is the first step when beginning an analysis. It spins up a Spark cluster using AWS's EMR service and
+configures it to run PySpark applications from an S3 bucket. The command the initiate startup is:
+
+```bash
+$ cms emr start NAME [--master=MASTER] [--node=NODE] [--count=COUNT]
+```
+
+Once cloudmesh has initiated cluster startup, it'll return the cluster ID given to it from AWS. While you can name a 
+cluster to keep track of them, all interactions must be done using the cluster ID rather than the name. The options for
+the command are:
+
+`--master=MASTER` tells cloudmesh what instance type to use for the master node. For a Spark cluster, there is only one
+master node. A list of available node types are available [here](https://aws.amazon.com/ec2/instance-types/). By 
+default, cloudmesh will spin up one m3.xlarge instance for use as the master node. Typically, this can be downscaled 
+slightly when compared to the worker nodes as it is solely responsible for coordinating nodes and does not participate
+in the actual processing of data.
+
+`--node=NODE` tells cloudmesh what instance type to use for the worker nodes. By default, cloudmesh will spin up 
+m3.xlarge servers to use as the worker nodes. Since these nodes drive the analysis being run, it is worthwhile to 
+consider upscaling these nodes, depending on budget and predicted workload (e.g. a server that costs twice as much is
+worthwhile if it does the work in a quarter of the time). Since these nodes are using Spark, which keeps data in 
+memory, it is better to use nodes with lots of high bandwidth memory rather than nodes with lots of disk space. 
+Additional vCores are also worthwhile to extra compute power. **Imporant**: Do not use a server type with 1 vCore. 
+Spark uses one core for the node's manager thread and then creates threads to occupy the other cores. If the server 
+only provides one core, then there will be no free cores to create worker threads - you end up with a useless server 
+that has one thread for management and zero threads to actually do the work, which will stall work being done.
+
+Finally, the `--count=COUNT` flag tells how many servers to provision from AWS. With 1 node being reserved for the 
+master node, `COUNT`-1 nodes will be created as worker nodes. Note that `--count=1` will create one master node and 0
+worker nodes - meaning there will be no servers to do the actual work of the analysis.
+
+### upload
+
+The upload function provides the user with the ability to upload programs and data to an S3 bucket for use in the 
+analysis. This is provided as a convenience and it is recommended that the user utilize the more formal methods of
+uploading files and data to S3 via the [cloudmesh-storage](https://github.com/cloudmesh/cloudmesh-storage). To use this
+function, simply provide the local filename, the destination S3 bucket associated with the account, and the filename
+to store the file as in the S3 bucket:
+
+```bash
+$ cms emr upload FILE BUCKET BUCKETNAME
+```
+
+Programs uploaded to S3 can be invoked via the run command while data becomes directly accessible to the Spark cluster
+by utilizing 'S3://' in the path to the file.
+
+### copy
+
+            emr copy BUCKET BUCKETNAME
+                Copy a file from S3 to the cluster's master node.
+
+### run
+
+            emr run CLUSTERID BUCKET BUCKETNAME
+                Submit a spark application stored in an S3 bucket to the spark cluster.
 
 
 ### stop
 
-### start
+As the name suggests, the stop command will initiate a shutdown of all instances associated with a cluster ID. The 
+command is invoked as:
 
-### upload
+```bash
+$ cms emr stop CLUSTERID
+```
 
-### copy
-
-### run
-
-            emr describe CLUSTERID
-                Describes a cluster. Lists its status, region, type, etc.
-            emr stop CLUSTERID
-                Stops a cluster. Once a shutdown is initiated, it cannot be undone.
-            emr start NAME [--master=MASTER] [--node=NODE] [--count=COUNT]
-                Starts a cluster with a given name, number of servers, and server type. Bootstraps with Hadoop and Spark.
-            emr copy BUCKET BUCKETNAME
-                Copy a file from S3 to the cluster's master node.
-            emr run CLUSTERID BUCKET BUCKETNAME
-                Submit a spark application stored in an S3 bucket to the spark cluster.
+Once a cluster has initiated shutdown, all instances are released, attached storage is removed, and all pending or 
+running tasks are stopped. This process is **irreversible**. The cluster ID will remain associated with your account
+for approximately 30 days after the cluster is terminated, after which is will be removed.
 
 ## OpenAPI

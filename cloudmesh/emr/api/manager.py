@@ -1,5 +1,6 @@
 import boto3
 from cloudmesh.management.configuration.config import Config
+from cloudmesh.mongo.DataBaseDecorator import DatabaseUpdate
 
 class Manager(object):
 
@@ -30,6 +31,7 @@ class Manager(object):
                     result += [states[option]]
         return result
 
+    @DatabaseUpdate()
     def list_clusters(self, args):
         client = self.get_client()
 
@@ -40,8 +42,9 @@ class Manager(object):
         cluster_state = self.parse_options(options, opt_states)
         results = client.list_clusters(ClusterStates=cluster_state)
 
-        return results['Clusters']
+        return [{"cm": {"cloud": "aws", "kind": "emr cluster list", "name": "account"}, 'data': results['Clusters']}]
 
+    @DatabaseUpdate()
     def list_instances(self, args):
         client = self.get_client()
 
@@ -56,8 +59,10 @@ class Manager(object):
 
         results = client.list_instances(ClusterId=args['CLUSTERID'], InstanceGroupTypes=instance_types,
                                         InstanceStates=instance_state)
-        return results['Instances']
+        return [{"cm": {"cloud": "aws", "kind": "emr instance list", "name": args['CLUSTERID']},
+                 'data': results['Instances']}]
 
+    @DatabaseUpdate()
     def list_steps(self, args):
         client = self.get_client()
 
@@ -72,21 +77,26 @@ class Manager(object):
             results = client.list_steps(ClusterId=args['CLUSTERID'], StepStates=step_state)
         else:
             results = client.list_steps(ClusterId=args['CLUSTERID'])
-        return results['Steps']
 
+        return [{"cm": {"cloud": "aws", "kind": "emr step list", "name": args['CLUSTERID']}, 'data': results['Steps']}]
+
+    @DatabaseUpdate()
     def describe_cluster(self, args):
         client = self.get_client()
         results = client.describe_cluster(ClusterId=args['CLUSTERID'])
 
-        return results['Cluster']
+        return [{"cm": {"cloud": "aws", "kind": "emr cluster description", "name": args['CLUSTERID']},
+                 'data': results['Cluster']}]
 
+    @DatabaseUpdate()
     def stop_cluster(self, args):
         client = self.get_client()
         client.terminate_job_flows(JobFlowIds=[args['CLUSTERID']])
 
-        results = {"cloud": "aws", "kind": "emr", "name": args['CLUSTERID'], "status": "Shutting down"}
-        return results
+        return [{"cm": {"cloud": "aws", "kind": "emr stop cluster request", "name": args['CLUSTERID']},
+                 'data': {"name": args['CLUSTERID']}}]
 
+    @DatabaseUpdate()
     def start_cluster(self, args):
         client = self.get_client()
 
@@ -101,15 +111,18 @@ class Manager(object):
                                       Applications=[{'Name': 'Spark'}, {'Name': 'Hadoop'}], VisibleToAllUsers=True,
                                       Steps=steps, JobFlowRole='EMR_EC2_DefaultRole', ServiceRole='EMR_DefaultRole')
 
-        return {"cloud": "aws", "kind": "emr", "cluster": results['JobFlowId'], "name": args['NAME'],
-                "status": "Starting"}
+        return [{"cm": {"cloud": "aws", "kind": "emr start cluster request", "name": args['NAME']},
+                 'data': {"cluster": results['JobFlowId'], "name": args['NAME']}}]
 
+    @DatabaseUpdate()
     def upload_file(self, args):
         client = self.get_client(service='s3')
         client.upload_file(args['FILE'], args['BUCKET'], args['BUCKETNAME'])
 
-        return {"cloud": "aws", "kind": "file", "bucket": args['BUCKET'], "file": args['BUCKETNAME']}
+        return [{"cm": {"cloud": "aws", "kind": "emr file upload", "name": args['BUCKETNAME']}, 'data':
+                {'file': args['FILE'], 'bucket': args['BUCKET'], 'bucketname': args['BUCKETNAME']}}]
 
+    @DatabaseUpdate()
     def copy_file(self, args):
         client = self.get_client()
 
@@ -119,8 +132,11 @@ class Manager(object):
                 'HadoopJarStep': {'Jar': 'command-runner.jar', 'Args': ['aws', 's3', 'cp', s3, '/home/hadoop/']}}
 
         response = client.add_job_flow_steps(JobFlowId=args['CLUSTERID'], Steps=[step])
-        return response
 
+        return [{"cm": {"cloud": "aws", "kind": "emr copy file request", "name": args['BUCKETNAME']}, 'data':
+                 response}]
+
+    @DatabaseUpdate()
     def run(self, args):
         client = self.get_client()
 
@@ -130,5 +146,7 @@ class Manager(object):
                                                                                             args['BUCKETNAME'])]}}
 
         response = client.add_job_flow_steps(JobFlowId=args['CLUSTERID'], Steps=[step])
-        return response
+
+        return [{"cm": {"cloud": "aws", "kind": "emr run file request", "name": args['BUCKETNAME']}, 'data':
+                 response}]
 

@@ -17,9 +17,9 @@ class EmrCommand(PluginCommand):
             emr list clusters [--status=STATUS...] [--format=FORMAT]
             emr list instances CLUSTERID [--status=STATUS...] [--type=TYPE...] [--format=FORMAT]
             emr list steps CLUSTERID [--state=STATE...] [--format=FORMAT]
-            emr describe CLUSTERID
-            emr stop CLUSTERID
+            emr describe CLUSTERID [--format=FORMAT]
             emr start NAME [--master=MASTER] [--node=NODE] [--count=COUNT]
+            emr stop CLUSTERID
             emr upload FILE BUCKET BUCKETNAME
             emr copy CLUSTERID BUCKET BUCKETNAME
             emr run CLUSTERID BUCKET BUCKETNAME
@@ -69,7 +69,8 @@ class EmrCommand(PluginCommand):
         emr = Manager()
 
         if arguments['list'] and arguments['clusters']:
-            clusters = emr.list_clusters(arguments)
+            clusters = emr.list_clusters(arguments)[0]['data']
+
             if len(clusters) == 0:
                 print("No clusters were found.")
             else:
@@ -80,7 +81,7 @@ class EmrCommand(PluginCommand):
                                         header=["ID", "Name", "State", "State Reason", "State Message", "Hours"],
                                         output=arguments['format']))
         elif arguments['list'] and arguments['instances']:
-            instances = emr.list_instances(arguments)
+            instances = emr.list_instances(arguments)[0]['data']
 
             if len(instances) == 0:
                 print("No instances were found.")
@@ -93,7 +94,7 @@ class EmrCommand(PluginCommand):
                                                 "Instance Type"],
                                         output=arguments['format']))
         elif arguments['list'] and arguments['steps']:
-            steps = emr.list_steps(arguments)
+            steps = emr.list_steps(arguments)[0]['data']
 
             if len(steps) == 0:
                 print("No steps were found.")
@@ -104,7 +105,7 @@ class EmrCommand(PluginCommand):
                                         header=["ID", "Name", "Status", "Status Reason"],
                                         output=arguments['format']))
         elif arguments['describe']:
-            cluster = emr.describe_cluster(arguments)
+            cluster = emr.describe_cluster(arguments)[0]['data']
 
             # Fixing formatting.
             apps = ""
@@ -124,19 +125,19 @@ class EmrCommand(PluginCommand):
                                             "Type", "Instance Hours", "Applications"],
                                     output=arguments['format']))
         elif arguments['stop']:
-            cluster = emr.stop_cluster(arguments)
-            print("{}: {}".format(cluster['name'], cluster["status"]))
+            cluster = emr.stop_cluster(arguments)[0]['data']
+            print("{}: Stopping".format(cluster['name']))
         elif arguments['start']:
-            cluster = emr.start_cluster(arguments)
-            print("{}: {} {}".format(cluster['name'], cluster['cluster'], cluster["status"]))
+            cluster = emr.start_cluster(arguments)[0]['data']
+            print("{}: {} Starting".format(cluster['name'], cluster['cluster']))
         elif arguments['upload']:
-            upload = emr.upload_file(arguments)
+            upload = emr.upload_file(arguments)[0]['data']
             print("File uploaded to: {} - {}".format(upload['bucket'], upload['file']))
         elif arguments['copy']:
-            results = emr.copy_file(arguments)
+            results = emr.copy_file(arguments)[0]['data']
             print("Copy step is running. Step ID: {}".format(results['StepIds'][0]))
         elif arguments['run']:
-            results = emr.run(arguments)
+            results = emr.run(arguments)[0]['data']
             print("Run step is running. Step ID: {}".format(results['StepIds'][0]))
 
         return ""

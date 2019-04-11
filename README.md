@@ -147,14 +147,33 @@ by utilizing 'S3://' in the path to the file.
 
 ### copy
 
-            emr copy BUCKET BUCKETNAME
-                Copy a file from S3 to the cluster's master node.
+In unusual scenarios, support files may need to be copied from S3 to the servers themselves. This may improve 
+performance as local IO is faster than reading from S3 - especially for repeated accesses. To copy a file from an S3
+bucket to local, use:
+
+```bash
+$ cms emr copy BUCKET BUCKETNAME
+```
+
+By default, the file will be copied from the S3 bucket given and downloaded into the master node's /home/hadoop/ folder.
 
 ### run
 
-            emr run CLUSTERID BUCKET BUCKETNAME
-                Submit a spark application stored in an S3 bucket to the spark cluster.
+The run command is the primary command of cloudmesh-emr. It calls `spark-submit` on the master node of the given cluster
+and points it to the program file on an S3 bucket. Essentially, it is equivalent to typing in `spark-submit 
+S3://BUCKET/BUCKETNAME` on the master node. You can invoke this command using:
 
+```bash
+$ cms emr run CLUSTERID BUCKET BUCKETNAME
+```
+
+As with the above, `CLUSTERID` refers to the AWS cluster ID and the `BUCKET` and `BUCKETNAME` arguments point to an 
+S3 bucket and a file in that bucket that contain the program to be run. The program then runs as any normal Spark 
+application and can use any and all Python and Spark functions normally available. For convenience, AWS allows users to
+use the 'S3://' file path to directly access S3 buckets - saving users from having to manually handle extracting results
+from the servers to a separate storage solution.
+
+While programs are running, their status can be checked on via the `list steps` command.
 
 ### stop
 
@@ -170,3 +189,4 @@ running tasks are stopped. This process is **irreversible**. The cluster ID will
 for approximately 30 days after the cluster is terminated, after which is will be removed.
 
 ## OpenAPI
+

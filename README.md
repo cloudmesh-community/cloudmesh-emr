@@ -190,3 +190,33 @@ for approximately 30 days after the cluster is terminated, after which is will b
 
 ## OpenAPI
 
+Cloudmesh-emr also provides an OpenAPI specification that allows users to run the plugin as a REST service. The server
+can be started by utilizing [cloudmesh-openapi](https://github.com/cloudmesh/cloudmesh-openapi). To invoke the server,
+navigate to the OpenAPI folder in the cloudmesh-emr directory and use:
+
+```bash
+$ cms openapi server start .\emr.yaml
+```
+
+to start up the server on the default address and port. From there, users can access cloudmesh-emr's functionality via
+REST service calls. The functions are available as:
+
+`http://localhost:8080/api/list_clusters
+http://localhost:8080/api/list_instances
+http://localhost:8080/api/list_steps
+http://localhost:8080/api/describe
+http://localhost:8080/api/stop
+http://localhost:8080/api/start
+http://localhost:8080/api/upload
+http://localhost:8080/api/copy
+http://localhost:8080/api/run
+`
+
+All of the options described in the previous section are available in the OpenAPI specification as arguments. For 
+example, to list all worker instances associated with a cluster, the following URL can be visited:
+
+`http://localhost:8080/api/list_instances?clusterid=j-XXXXXXXXXXX&type=core`
+
+The only thing to consider when using the OpenAPI server is that `upload` will behave slightly differently than 
+anticipated. When utilizing that part of the service, the `file` argument will be relative to the server, not the 
+client making the request.

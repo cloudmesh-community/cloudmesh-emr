@@ -219,23 +219,17 @@ $ cms openapi server start ./emr.yaml
 to start up the server on the default address and port. From there, users can access cloudmesh-emr's functionality via
 REST service calls. The functions are available as:
 
-`http://localhost:8080/api/list_clusters`
-
-`http://localhost:8080/api/list_instances`
-
-`http://localhost:8080/api/list_steps`
-
-`http://localhost:8080/api/describe`
-
-`http://localhost:8080/api/stop`
-
-`http://localhost:8080/api/start`
-
-`http://localhost:8080/api/upload`
-
-`http://localhost:8080/api/copy`
-
-`http://localhost:8080/api/run`
+```
+http://localhost:8080/api/list_clusters
+http://localhost:8080/api/list_instances
+http://localhost:8080/api/list_steps
+http://localhost:8080/api/describe
+http://localhost:8080/api/stop
+http://localhost:8080/api/start
+http://localhost:8080/api/upload
+http://localhost:8080/api/copy
+http://localhost:8080/api/run
+```
 
 All of the options described in the previous section are available in the OpenAPI specification as arguments. For 
 example, to list all worker instances associated with a cluster, the following URL can be visited:

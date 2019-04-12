@@ -1,14 +1,11 @@
-# CLoudmesh Elastic Map Reduce 
+# Cloudmesh Elastic Map Reduce 
 
-:o: repalce -installer in the shields with -emr
-
-[![Version](https://img.shields.io/pypi/v/cloudmesh-installer.svg)](https://pypi.python.org/pypi/cloudmesh-installer)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/cloudmesh/cloudmesh-installer/blob/master/LICENSE)
-[![Python](https://img.shields.io/pypi/pyversions/cloudmesh-installer.svg)](https://pypi.python.org/pypi/cloudmesh-installer)
-[![Format](https://img.shields.io/pypi/format/cloudmesh-installer.svg)](https://pypi.python.org/pypi/cloudmesh-installer)
-[![Status](https://img.shields.io/pypi/status/cloudmesh-installer.svg)](https://pypi.python.org/pypi/cloudmesh-installer)
-[![Travis](https://travis-ci.com/cloudmesh/cloudmesh-installer.svg?branch=master)](https://travis-ci.com/cloudmesh/cloudmesh-installer)
-
+[![Version](https://img.shields.io/pypi/v/cloudmesh-emr.svg)](https://pypi.python.org/pypi/cloudmesh-emr)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/cloudmesh/cloudmesh-emr/blob/master/LICENSE)
+[![Python](https://img.shields.io/pypi/pyversions/cloudmesh-emr.svg)](https://pypi.python.org/pypi/cloudmesh-emr)
+[![Format](https://img.shields.io/pypi/format/cloudmesh-emr.svg)](https://pypi.python.org/pypi/cloudmesh-emr)
+[![Status](https://img.shields.io/pypi/status/cloudmesh-emr.svg)](https://pypi.python.org/pypi/cloudmesh-emr)
+[![Travis](https://travis-ci.com/cloudmesh/cloudmesh-emr.svg?branch=master)](https://travis-ci.com/cloudmesh/cloudmesh-emr)
 
 ## Introduction
 
@@ -20,7 +17,19 @@ including commonsense defaults while allowing the user the flexibility to specif
 
 ## Installation
 
-cloudmesh-emr is best installed via git and pip as follows:
+cloudmesh-emr can either be installed via pip or, for advanced users wanting to use the development versions, via git:
+
+### Install via pip
+
+```bash
+$ pip install cloudmesh-cmd5
+$ pip install cloudmesh-sys
+$ pip install cloudmesh-cloud
+$ pip install cloudmesh-emr
+```
+
+
+### Developer Install
 
 ```bash
 $ git clone https://github.com/cloudmesh/cloudmesh-emr.git
@@ -204,22 +213,29 @@ can be started by utilizing [cloudmesh-openapi](https://github.com/cloudmesh/clo
 navigate to the OpenAPI folder in the cloudmesh-emr directory and use:
 
 ```bash
-$ cms openapi server start .\emr.yaml
+$ cms openapi server start ./emr.yaml
 ```
 
 to start up the server on the default address and port. From there, users can access cloudmesh-emr's functionality via
 REST service calls. The functions are available as:
 
-`http://localhost:8080/api/list_clusters
-http://localhost:8080/api/list_instances
-http://localhost:8080/api/list_steps
-http://localhost:8080/api/describe
-http://localhost:8080/api/stop
-http://localhost:8080/api/start
-http://localhost:8080/api/upload
-http://localhost:8080/api/copy
-http://localhost:8080/api/run
-`
+`http://localhost:8080/api/list_clusters`
+
+`http://localhost:8080/api/list_instances`
+
+`http://localhost:8080/api/list_steps`
+
+`http://localhost:8080/api/describe`
+
+`http://localhost:8080/api/stop`
+
+`http://localhost:8080/api/start`
+
+`http://localhost:8080/api/upload`
+
+`http://localhost:8080/api/copy`
+
+`http://localhost:8080/api/run`
 
 All of the options described in the previous section are available in the OpenAPI specification as arguments. For 
 example, to list all worker instances associated with a cluster, the following URL can be visited:
@@ -229,3 +245,11 @@ example, to list all worker instances associated with a cluster, the following U
 The only thing to consider when using the OpenAPI server is that `upload` will behave slightly differently than 
 anticipated. When utilizing that part of the service, the `file` argument will be relative to the server, not the 
 client making the request.
+
+## References
+
+[Cloudmesh cmd5](https://github.com/cloudmesh/cloudmesh-cmd5)
+
+[Cloudmesh cloud](https://github.com/cloudmesh/cloudmesh-cloud)
+
+[Cloudmesh sys](https://github.com/cloudmesh/cloudmesh-sys)

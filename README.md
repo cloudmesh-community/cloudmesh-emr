@@ -244,6 +244,4 @@ client making the request.
 
 [Cloudmesh cmd5](https://github.com/cloudmesh/cloudmesh-cmd5)
 
-[Cloudmesh cloud](https://github.com/cloudmesh/cloudmesh-cloud)
-
-[Cloudmesh sys](https://github.com/cloudmesh/cloudmesh-sys)
+[Cloudmesh common](https://github.com/cloudmesh/cloudmesh-common)

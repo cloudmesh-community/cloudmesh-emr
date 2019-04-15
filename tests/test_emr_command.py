@@ -1,3 +1,8 @@
+###############################################################
+# pytest -v --capture=no tests/test_emr_command.py
+# pytest -v  tests/test_emr_command.py
+# pytest -v --capture=no -v --nocapture tests/test_emr_command.py:Test_emr_command.<METHIDNAME>
+###############################################################
 from cloudmesh.management.configuration.config import Config
 from cloudmesh.common.util import HEADING
 from pprint import pprint
@@ -6,10 +11,10 @@ import oyaml as yaml
 import munch
 import re
 
-# nosetests -v --nocapture tests/test_command.py
+import pytest
 
-
-class TestConfig:
+@pytest.mark.incremental
+class Test_emr_command:
 
     def setup(self):
         self.config = Config()

@@ -59,6 +59,7 @@ class Manager(object):
 
         results = client.list_instances(ClusterId=args['CLUSTERID'], InstanceGroupTypes=instance_types,
                                         InstanceStates=instance_state)
+
         return [{"cm": {"cloud": "aws", "kind": "emr instance list", "name": args['CLUSTERID']},
                  'data': results['Instances']}]
 

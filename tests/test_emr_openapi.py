@@ -4,7 +4,8 @@
 # pytest -v --capture=no -v --nocapture tests/test_emr_openapi.py:Test_emr_openapi.<METHIDNAME>
 ###############################################################
 from cloudmesh.management.configuration.config import Config
-from cloudmesh.common.util import HEADING
+from cloudmesh.common.run.subprocess import run
+from cloudmesh.emr.command.emr import EmrCommand
 from pprint import pprint
 import textwrap
 import oyaml as yaml
@@ -13,59 +14,68 @@ import re
 
 import pytest
 
+
 @pytest.mark.incremental
 class Test_emr_openapi:
 
     def setup(self):
-        self.config = Config()
+        self.clusterid = ""
 
-    def test_00_config(self):
-        HEADING()
+    def test_list_clusters(self):
+        result = run(['curl', 'http://localhost:8080/api/list_clusters'], shell=False)
 
-        pprint(self.config.dict())
+        assert result is not None
+        assert result[0] == "["
 
-        print(self.config)
-        print(type(self.config.data))
+    def test_start_cluster(self):
+        result = run(['curl', 'http://localhost:8080/api/start?name=pytest-cluster&count=2'], shell=False)
 
-        assert self.config is not None
+        assert result is not None
+        assert result[0] == "{"
 
+        self.clusterid = result[16:31]
 
-    def test_20_config_subscriptable(self):
-        HEADING()
-        data = self.config["cloudmesh"]["data"]["mongo"]
-        assert data is not None
+    def test_list_steps(self):
+        result = run(['curl', 'http://localhost:8080/api/list_steps?cluster=?{}'.format(self.clusterid)],
+                     shell=False)
 
-    def test_30_dictreplace(self):
-        HEADING()
+        assert result is not None
+        assert result[0] == "{"
 
-        spec = textwrap.dedent("""
-        cloudmesh:
-          profile:
-            name: Gregor
-          unordered:
-            name: "{cloudmesh.other.name}.postfix"
-          other:
-            name: "{cloudmesh.profile.name}"
-        
-        """)
+    def test_describe(self):
+        result = run(['curl', 'http://localhost:8080/api/describe?cluster=?{}'.format(self.clusterid)],
+                     shell=False)
 
-        print(spec)
+        assert result is not None
+        assert result[0] == "{"
 
-        # spec = spec.replace("{", "{{")
-        # spec = spec.replace("}", "}}")
+    def test_copy(self):
+        result = run(['curl','http://localhost:8080/api/copy?cluster=?{}&bucket=test&bucketname='
+                             'test.py'.format(self.clusterid)], shell=False)
 
-        # print(spec)
+        assert result is not None
+        assert result[0] == "{"
 
-        result = self.config.spec_replace(spec)
+    def test_run(self):
+        result = run(['curl','http://localhost:8080/api/run?cluster=?{}&bucket=test&bucketname='
+                             'test.py'.format(self.clusterid)], shell=False)
 
-        print(result)
-        data = yaml.load(result)
-        pprint(data)
+        assert result is not None
+        assert result[0] == "{"
 
-        assert data["cloudmesh"]["unordered"]["name"] == "Gregor.postfix"
-        assert data["cloudmesh"]["other"]["name"] == "Gregor"
+    def test_list_instances(self):
+        result = run(['curl', 'http://localhost:8080/api/list_instances?cluster=?{}'.format(self.clusterid)],
+                     shell=False)
 
-    def test_31_configreplace(self):
-        HEADING()
-        self.config = Config()
-        pprint(self.config["cloudmesh"]["profile"])
+        assert result is not None
+        assert result[0] == "{"
+
+    def test_stop_cluster(self):
+        result = run(['curl', 'http://localhost:8080/api/stop?cluster=?{}'.format(self.clusterid)],
+                     shell=False)
+
+        assert result is not None
+        assert result[0] == "{"
+
+        self.clusterid = ""
+

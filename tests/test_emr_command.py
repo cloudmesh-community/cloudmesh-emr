@@ -5,6 +5,7 @@
 ###############################################################
 from cloudmesh.management.configuration.config import Config
 from cloudmesh.common.util import HEADING
+from cloudmesh.emr.command.emr import EmrCommand
 from pprint import pprint
 import textwrap
 import oyaml as yaml
@@ -16,56 +17,85 @@ import pytest
 @pytest.mark.incremental
 class Test_emr_command:
 
-    def setup(self):
-        self.config = Config()
+    @pytest.fixture(scope='module')
+    def global_data(self):
+        return {'cluster': ""}
 
-    def test_00_config(self):
-        HEADING()
+    def test_list_clusters(self, capsys):
+        emr = EmrCommand()
+        emr.do_emr("list clusters")
 
-        pprint(self.config.dict())
+        result = capsys.readouterr()
 
-        print(self.config)
-        print(type(self.config.data))
+        assert result.out[0] == "+"
 
-        assert self.config is not None
+    def test_start_cluster(self, capsys, global_data):
+        emr = EmrCommand()
+        emr.do_emr("start test --master=m4.large --node=m4.large --count=2")
 
+        result = capsys.readouterr()
 
-    def test_20_config_subscriptable(self):
-        HEADING()
-        data = self.config["cloudmesh"]["data"]["mongo"]
-        assert data is not None
+        assert result.out[:5] == "test:"
 
-    def test_30_dictreplace(self):
-        HEADING()
+        global_data['cluster'] = result.out[6:-9]
 
-        spec = textwrap.dedent("""
-        cloudmesh:
-          profile:
-            name: Gregor
-          unordered:
-            name: "{cloudmesh.other.name}.postfix"
-          other:
-            name: "{cloudmesh.profile.name}"
-        
-        """)
+    def test_list_instances(self, capsys, global_data):
+        assert global_data['cluster'] != ""
 
-        print(spec)
+        emr = EmrCommand()
+        emr.do_emr("list instances {}".format(global_data['cluster']))
 
-        # spec = spec.replace("{", "{{")
-        # spec = spec.replace("}", "}}")
+        result = capsys.readouterr()
 
-        # print(spec)
+        assert result.out[0] == "+" or result.out == "No instances were found.\n"
 
-        result = self.config.spec_replace(spec)
+    def test_describe(self, capsys, global_data):
+        assert global_data['cluster'] != ""
 
-        print(result)
-        data = yaml.load(result)
-        pprint(data)
+        emr = EmrCommand()
+        emr.do_emr("describe {}".format(global_data['cluster']))
 
-        assert data["cloudmesh"]["unordered"]["name"] == "Gregor.postfix"
-        assert data["cloudmesh"]["other"]["name"] == "Gregor"
+        result = capsys.readouterr()
 
-    def test_31_configreplace(self):
-        HEADING()
-        self.config = Config()
-        pprint(self.config["cloudmesh"]["profile"])
+        assert result.out[0] == "+"
+
+    def test_list_steps(self, capsys, global_data):
+        assert global_data['cluster'] != ""
+
+        emr = EmrCommand()
+        emr.do_emr("list steps {}".format(global_data['cluster']))
+
+        result = capsys.readouterr()
+
+        assert result.out[0] == "+"
+
+    def test_copy_file(self, capsys, global_data):
+        assert global_data['cluster'] != ""
+
+        emr = EmrCommand()
+        emr.do_emr("copy {} test test.py".format(global_data['cluster']))
+
+        result = capsys.readouterr()
+
+        assert result.out[:9] == "Copy step"
+
+    def test_run(self, capsys, global_data):
+        assert global_data['cluster'] != ""
+
+        emr = EmrCommand()
+        emr.do_emr("run {} test test.py".format(global_data['cluster']))
+
+        result = capsys.readouterr()
+
+        assert result.out[:8] == "Run step"
+
+    def test_stop_cluster(self, capsys, global_data):
+        assert global_data['cluster'] != ""
+
+        emr = EmrCommand()
+        emr.do_emr("stop {}".format(global_data['cluster']))
+
+        result = capsys.readouterr()
+
+        assert result.out[-9:-1] == "Stopping"
+

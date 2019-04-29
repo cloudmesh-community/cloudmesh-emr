@@ -6,6 +6,7 @@
 from cloudmesh.management.configuration.config import Config
 from cloudmesh.common.util import HEADING
 from cloudmesh.emr.api.manager import Manager
+from cloudmesh.common.StopWatch import StopWatch
 from pprint import pprint
 import textwrap
 import oyaml as yaml
@@ -66,7 +67,10 @@ class Test_emr_manager:
 
         args = {'status': 'all'}
 
+        StopWatch.start("List Clusters")
         clusters = emr.list_clusters(args)
+        StopWatch.stop("List Clusters")
+
         assert clusters is not None
         assert 'cm' in clusters[0]
 
@@ -75,7 +79,9 @@ class Test_emr_manager:
 
         args = {'master': 'm4.large', 'node': 'm4.large', 'count': 2, 'NAME': 'cms-test-cluster'}
 
+        StopWatch.start("Start Cluster")
         cluster = emr.start_cluster(args)
+        StopWatch.stop("Start Cluster")
 
         assert cluster is not None
         assert 'cm' in cluster[0]
@@ -89,7 +95,9 @@ class Test_emr_manager:
 
         args = {'status': 'all', 'type': 'all', 'CLUSTERID': global_data['cluster']}
 
+        StopWatch.start("List Instances")
         instances = emr.list_instances(args)
+        StopWatch.stop("List Instances")
 
         assert instances is not None
         assert 'cm' in instances[0]
@@ -101,7 +109,9 @@ class Test_emr_manager:
 
         args = {'CLUSTERID': global_data['cluster']}
 
+        StopWatch.start("Describe Cluster")
         cluster = emr.describe_cluster(args)
+        StopWatch.stop("Describe Cluster")
 
         assert cluster is not None
         assert 'cm' in cluster[0]
@@ -113,7 +123,9 @@ class Test_emr_manager:
 
         args = {'CLUSTERID': global_data['cluster'], 'state': 'all'}
 
+        StopWatch.start("List Steps")
         steps = emr.describe_cluster(args)
+        StopWatch.stop("List Steps")
 
         assert steps is not None
         assert 'cm' in steps[0]
@@ -125,7 +137,9 @@ class Test_emr_manager:
 
         args = {'CLUSTERID': global_data['cluster'], 'BUCKET': 'test', 'BUCKETNAME': 'test.py'}
 
+        StopWatch.start("Copy File")
         file = emr.copy_file(args)
+        StopWatch.stop("Copy File")
 
         assert file is not None
         assert 'cm' in file[0]
@@ -137,7 +151,9 @@ class Test_emr_manager:
 
         args = {'CLUSTERID': global_data['cluster'], 'BUCKET': 'test', 'BUCKETNAME': 'test.py'}
 
-        step = emr.copy_file(args)
+        StopWatch.start("Run Program")
+        step = emr.run(args)
+        StopWatch.stop("Run Program")
 
         assert step is not None
         assert 'cm' in step[0]
@@ -149,7 +165,9 @@ class Test_emr_manager:
 
         args = {'CLUSTERID': global_data['cluster']}
 
+        StopWatch.start("Stop Cluster")
         cluster = emr.stop_cluster(args)
+        StopWatch.stop("Stop Cluster")
 
         assert cluster is not None
         assert 'cm' in cluster[0]
@@ -157,3 +175,5 @@ class Test_emr_manager:
 
         global_data['cluster'] = ""
 
+    def test_benchmark(self):
+        StopWatch.benchmark()

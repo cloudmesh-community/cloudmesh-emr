@@ -11,6 +11,12 @@ class Manager(object):
         print("list", parameter)
 
     def get_client(self, service='emr'):
+        """
+        Connects to AWS and cre
+        :param service: The service to create a client for. Either S3 or EMR.
+        :return: boto3.client
+        """
+
         configs = Config()
 
         key_id = configs['cloudmesh.cloud.aws.credentials.EC2_ACCESS_ID']
@@ -23,6 +29,13 @@ class Manager(object):
         return client
 
     def parse_options(self, options, states):
+        """
+        Helper function to parse the arguments passed to the various EMR functions. Returns 'all' if it is in the
+        options list. Otherwise it'll filter the list down to the valid options passed in states.
+        :param options: A list of strings. Contains the options the user entered.
+        :param states: A dictionary. Contains a mapping from user values (e.g. booting) to AWS values (BOOTSTRAPPING).
+        :return: A list of mapped values.
+        """
         result = []
 
         if 'all' not in options:
@@ -33,6 +46,11 @@ class Manager(object):
 
     @DatabaseUpdate()
     def list_clusters(self, args):
+        """
+        Lists the clusters that are associated with the Amazon account in the cloudmesh4.yaml.
+        :param args: A dictionary containing a status key. The key must have a list of statuses the user is requesting.
+        :return: cloudmesh dict.
+        """
         client = self.get_client()
 
         options = args['status']
@@ -46,6 +64,12 @@ class Manager(object):
 
     @DatabaseUpdate()
     def list_instances(self, args):
+        """
+        Lists the instances that are associated with a specific cluster.
+        :param args: A dictionary containing CLUSTERID, status, and type values The last two must contain valid values
+        as describe in the documentation.
+        :return: cloudmesh dict.
+        """
         client = self.get_client()
 
         options = args['status']
@@ -65,6 +89,12 @@ class Manager(object):
 
     @DatabaseUpdate()
     def list_steps(self, args):
+        """
+        Lists the steps a cluster is performing.
+        :param args: A dictionary containing keys for CLUSTERID and state. The state must be a valid option from the
+        documentation.
+        :return: cloudmesh dict.
+        """
         client = self.get_client()
 
         options = args['state']
@@ -83,6 +113,11 @@ class Manager(object):
 
     @DatabaseUpdate()
     def describe_cluster(self, args):
+        """
+        Describes a specific cluster.
+        :param args: A dictionary with a CLUSTERID that contains the cluster ID to describe.
+        :return: cloudmesh dict
+        """
         client = self.get_client()
         results = client.describe_cluster(ClusterId=args['CLUSTERID'])
 
@@ -91,6 +126,11 @@ class Manager(object):
 
     @DatabaseUpdate()
     def stop_cluster(self, args):
+        """
+        Stops the given cluster.
+        :param args: A dictionary with a CLUSTERID that contains the cluster ID to stop.
+        :return: cloudmesh dict
+        """
         client = self.get_client()
         client.terminate_job_flows(JobFlowIds=[args['CLUSTERID']])
 
@@ -99,6 +139,12 @@ class Manager(object):
 
     @DatabaseUpdate()
     def start_cluster(self, args):
+        """
+        Starts a new cluster.
+        :param args: A dictionary containing a NAME, master, node, and count keys. The NAME key names the cluster while
+        the master and node types are valid AWS machine types. The count is the number of clusters to create.
+        :return: cloudmesh dict
+        """
         client = self.get_client()
 
         setup = {'MasterInstanceType': args['master'], 'SlaveInstanceType': args['node'],
@@ -117,6 +163,11 @@ class Manager(object):
 
     @DatabaseUpdate()
     def upload_file(self, args):
+        """
+
+        :param args:
+        :return: cloudmesh dict
+        """
         client = self.get_client(service='s3')
         client.upload_file(args['FILE'], args['BUCKET'], args['BUCKETNAME'])
 
@@ -125,6 +176,13 @@ class Manager(object):
 
     @DatabaseUpdate()
     def copy_file(self, args):
+        """
+        Copies a file from S3 to the master node's /home/hadoop folder.
+        :param args: A dictionary containing CLUSTERID, BUCKET, and BUCKETNAME keys. The clusterid determines the
+        cluster to copy the file to while the BUCKET and BUCKETNAME values describe the bucket and file name in that
+        bucket to download.
+        :return: cloudmesh dict
+        """
         client = self.get_client()
 
         s3 = 's3://{}/{}'.format(args['BUCKET'], args['BUCKETNAME'])
@@ -139,6 +197,13 @@ class Manager(object):
 
     @DatabaseUpdate()
     def run(self, args):
+        """
+        Runs a Spark Python file in an S3 bucket on the cluster.
+        :param args: A dictionary containing CLUSTERID, BUCKET, and BUCKETNAME keys. The clusterid determines the
+        cluster to copy the file to while the BUCKET and BUCKETNAME values describe the bucket and file name in that
+        bucket to download.
+        :return: cloudmesh dict
+        """
         client = self.get_client()
 
         step = {'Name': 'Run {}'.format(args['BUCKETNAME']), 'ActionOnFailure': 'CANCEL_AND_WAIT',
@@ -150,4 +215,3 @@ class Manager(object):
 
         return [{"cm": {"cloud": "aws", "kind": "emr run file request", "name": args['BUCKETNAME']}, 'data':
                  response}]
-

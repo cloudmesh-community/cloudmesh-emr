@@ -28,7 +28,7 @@ def get_list_from_arg(arg, valid):
 
 def list_clusters(status='all'):
     """
-    Lists the clusters associated with the Amazon credentials in the cloudmesh4.yaml file.
+    Lists the clusters associated with the Amazon credentials in the cloudmesh.yaml file.
     :param status: Filters clusters by the given status.
     :return: dictionary of associated clusters.
     """

@@ -47,7 +47,7 @@ class Manager(object):
     @DatabaseUpdate()
     def list_clusters(self, args):
         """
-        Lists the clusters that are associated with the Amazon account in the cloudmesh4.yaml.
+        Lists the clusters that are associated with the Amazon account in the cloudmesh.yaml.
         :param args: A dictionary containing a status key. The key must have a list of statuses the user is requesting.
         :return: cloudmesh dict.
         """

@@ -2,10 +2,6 @@ from __future__ import print_function
 from cloudmesh.emr.api.manager import Manager
 
 
-def start():
-    pass
-
-
 def get_list_from_arg(arg, valid):
     """
     Helper function to that validates a list against a valid set.
@@ -28,13 +24,22 @@ def get_list_from_arg(arg, valid):
 
 def list_clusters(status='all'):
     """
-    Lists the clusters associated with the Amazon credentials in the cloudmesh.yaml file.
+    Lists the clusters associated with the Amazon credentials in the
+    cloudmesh.yaml file.
+
     :param status: Filters clusters by the given status.
     :return: dictionary of associated clusters.
     """
     emr = Manager()
 
-    val_state = ['start', 'boot', 'run', 'wait', 'terminating', 'shutdown', 'error', 'all']
+    val_state = ['start',
+                 'boot',
+                 'run',
+                 'wait',
+                 'terminating',
+                 'shutdown',
+                 'error',
+                 'all']
     states = get_list_from_arg(status, val_state)
 
     return emr.list_clusters({'status': states})[0]['data']
@@ -56,7 +61,9 @@ def list_instances(cluster, status='all', type='all'):
     val_type = ['master', 'core', 'task']
     types = get_list_from_arg(type, val_type)
 
-    return emr.list_instances({'CLUSTERID': cluster, 'status': states, 'type': types})[0]['data']
+    return emr.list_instances({'CLUSTERID': cluster,
+                               'status': states,
+                               'type': types})[0]['data']
 
 
 def list_steps(cluster, status='all'):
@@ -68,7 +75,13 @@ def list_steps(cluster, status='all'):
     """
     emr = Manager()
 
-    val_state = ['pending', 'canceling', 'running', 'completed', 'cancelled', 'failed', 'interrupted']
+    val_state = ['pending',
+                 'canceling',
+                 'running',
+                 'completed',
+                 'cancelled',
+                 'failed',
+                 'interrupted']
     states = get_list_from_arg(status, val_state)
 
     return emr.list_steps({'CLUSTERID': cluster, 'state': states})[0]['data']
@@ -107,7 +120,10 @@ def start(name, master='m3.xlarge', node='m3.xlarge', count=3):
     """
     emr = Manager()
 
-    return emr.start_cluster({'NAME': name, 'master': master, 'node': node, 'count': count})[0]['data']
+    return emr.start_cluster({'NAME': name,
+                              'master': master,
+                              'node': node,
+                              'count': count})[0]['data']
 
 
 def upload(file, bucket, bucketname):
@@ -120,7 +136,9 @@ def upload(file, bucket, bucketname):
     """
     emr = Manager()
 
-    return emr.upload_file({'FILE': file, 'BUCKET': bucket, 'BUCKETNAME': bucketname})[0]['data']
+    return emr.upload_file({'FILE': file,
+                            'BUCKET': bucket,
+                            'BUCKETNAME': bucketname})[0]['data']
 
 
 def copy(cluster, bucket, bucketname):
@@ -133,7 +151,9 @@ def copy(cluster, bucket, bucketname):
     """
     emr = Manager()
 
-    return emr.copy_file({'CLUSTERID': cluster, 'BUCKET': bucket, 'BUCKETNAME': bucketname})[0]['data']
+    return emr.copy_file({'CLUSTERID': cluster,
+                          'BUCKET': bucket,
+                          'BUCKETNAME': bucketname})[0]['data']
 
 
 def run(cluster, bucket, bucketname):
@@ -146,5 +166,7 @@ def run(cluster, bucket, bucketname):
     """
     emr = Manager()
 
-    return emr.run({'CLUSTERID': cluster, 'BUCKET': bucket, 'BUCKETNAME': bucketname})[0]['data']
+    return emr.run({'CLUSTERID': cluster,
+                    'BUCKET': bucket,
+                    'BUCKETNAME': bucketname})[0]['data']
 

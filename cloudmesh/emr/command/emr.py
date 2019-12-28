@@ -5,6 +5,7 @@ from cloudmesh.emr.api.manager import Manager
 
 from cloudmesh.common.Printer import Printer
 
+
 class EmrCommand(PluginCommand):
 
     # noinspection PyUnusedLocal
@@ -47,24 +48,49 @@ class EmrCommand(PluginCommand):
 
         Description:
             emr list clusters [--status=STATUS] [--format=FORMAT]
-                Lists all clusters viewable to the credentials with a given status [default: all]. Valid statuses are: start, boot, run, wait, terminating, shutdown, and error.
+
+                Lists all clusters viewable to the credentials with a
+                given status [default: all]. Valid statuses are: start,
+                boot, run, wait, terminating, shutdown, and error.
+
             emr list instances [--status=STATUS...] [--format=FORMAT]
-                Lists all instances viewable to the credentials with a given status [default: all}. Valid statuses are: start, provision, boot, run, down. Valid types are: master, core, and task.
+
+                Lists all instances viewable to the credentials with a given
+                status [default: all]. Valid statuses are: start, provision,
+                boot, run, down. Valid types are: master, core, and task.
+
             emr list steps CLUSTERID [--state=STATE...]
-                Lists all steps being performed by a cluster. Valid states are pending, canceling, running, completed cancelled, failed, and  interrupted
+
+                Lists all steps being performed by a cluster. Valid states are
+                pending, canceling, running, completed cancelled, failed, and
+                interrupted
+
             emr describe CLUSTERID
+
                 Describes a cluster. Lists its status, region, type, etc.
+
             emr stop CLUSTERID
-                Stops a cluster. Once a shutdown is initiated, it cannot be undone.
+
+                Stops a cluster. Once a shutdown is initiated, it cannot be
+                undone.
+
             emr start NAME [--master=MASTER] [--node=NODE] [--count=COUNT]
-                Starts a cluster with a given name, number of servers, and server type. Bootstraps with Hadoop and Spark.
+
+                Starts a cluster with a given name, number of servers, and
+                server type. Bootstraps with Hadoop and Spark.
+
             emr copy BUCKET BUCKETNAME
+
                 Copy a file from S3 to the cluster's master node.
+
             emr run CLUSTERID BUCKET BUCKETNAME
-                Submit a spark application stored in an S3 bucket to the spark cluster.
+
+                Submit a spark application stored in an S3 bucket to the spark
+                cluster.
         """
 
-        map_parameters(arguments, 'status', 'format', 'type', 'master', 'node', 'count', 'state')
+        map_parameters(arguments, 'status', 'format', 'type', 'master', 'node',
+                       'count', 'state')
 
         emr = Manager()
 
@@ -76,9 +102,13 @@ class EmrCommand(PluginCommand):
             else:
                 print(Printer.flatwrite(clusters,
                                         sort_keys=["Id"],
-                                        order=["Id", "Name", "Status.State", "Status.StateChangeReason.Code",
-                                               "Status.StateChangeReason.Message", "NormalizedInstanceHours"],
-                                        header=["ID", "Name", "State", "State Reason", "State Message", "Hours"],
+                                        order=["Id", "Name", "Status.State",
+                                               "Status.StateChangeReason.Code",
+                                               "Status.StateChangeReason.Message",
+                                               "NormalizedInstanceHours"],
+                                        header=["ID", "Name", "State",
+                                                "State Reason", "State Message",
+                                                "Hours"],
                                         output=arguments['format']))
         elif arguments['list'] and arguments['instances']:
             instances = emr.list_instances(arguments)[0]['data']
@@ -88,9 +118,12 @@ class EmrCommand(PluginCommand):
             else:
                 print(Printer.flatwrite(instances,
                                         sort_keys=["Id"],
-                                        order=["Id", "Status.State", "Status.StateChangeReason.Code",
-                                               "Status.StateChangeReason.Message", "Market", "InstanceType"],
-                                        header=["ID", "State", "State Reason", "State Message", "Market",
+                                        order=["Id", "Status.State",
+                                               "Status.StateChangeReason.Code",
+                                               "Status.StateChangeReason.Message",
+                                               "Market", "InstanceType"],
+                                        header=["ID", "State", "State Reason",
+                                                "State Message", "Market",
                                                 "Instance Type"],
                                         output=arguments['format']))
         elif arguments['list'] and arguments['steps']:
@@ -101,8 +134,10 @@ class EmrCommand(PluginCommand):
             else:
                 print(Printer.flatwrite(steps,
                                         sort_keys=["Id"],
-                                        order=["Id", "Name", "Status.State", "Status.StateChangeReason"],
-                                        header=["ID", "Name", "Status", "Status Reason"],
+                                        order=["Id", "Name", "Status.State",
+                                               "Status.StateChangeReason"],
+                                        header=["ID", "Name", "Status",
+                                                "Status Reason"],
                                         output=arguments['format']))
         elif arguments['describe']:
             cluster = emr.describe_cluster(arguments)[0]['data']
@@ -110,19 +145,26 @@ class EmrCommand(PluginCommand):
             # Fixing formatting.
             apps = ""
             for application in cluster["Applications"]:
-                apps += "{} {}, ".format(application["Name"], application["Version"])
+                apps += "{} {}, ".format(application["Name"],
+                                         application["Version"])
             apps = apps[:-2]
             cluster["Applications"] = apps
             cluster = [cluster]
 
             print(Printer.flatwrite(cluster,
                                     sort_keys=["Id"],
-                                    order=["Id", "Name", "Status.State", "Status.StateChangeReason.Code",
+                                    order=["Id", "Name", "Status.State",
+                                           "Status.StateChangeReason.Code",
                                            "Status.StateChangeReason.Message",
-                                           "Ec2InstanceAttributes.Ec2AvailabilityZone", "InstanceCollectionType",
-                                           "NormalizedInstanceHours", "Applications"],
-                                    header=["ID", "Name",  "State", "State Reason", "State Message", "Region",
-                                            "Type", "Instance Hours", "Applications"],
+                                           "Ec2InstanceAttributes.Ec2AvailabilityZone",
+                                           "InstanceCollectionType",
+                                           "NormalizedInstanceHours",
+                                           "Applications"],
+                                    header=["ID", "Name", "State",
+                                            "State Reason", "State Message",
+                                            "Region",
+                                            "Type", "Instance Hours",
+                                            "Applications"],
                                     output=arguments['format']))
         elif arguments['stop']:
             cluster = emr.stop_cluster(arguments)[0]['data']
@@ -132,13 +174,15 @@ class EmrCommand(PluginCommand):
             print("{}: {} Starting".format(cluster['name'], cluster['cluster']))
         elif arguments['upload']:
             upload = emr.upload_file(arguments)[0]['data']
-            print("File uploaded to: {} - {}".format(upload['bucket'], upload['file']))
+            print("File uploaded to: {} - {}".format(upload['bucket'],
+                                                     upload['file']))
         elif arguments['copy']:
             results = emr.copy_file(arguments)[0]['data']
-            print("Copy step is running. Step ID: {}".format(results['StepIds'][0]))
+            print("Copy step is running. Step ID: {}".format(
+                results['StepIds'][0]))
         elif arguments['run']:
             results = emr.run(arguments)[0]['data']
-            print("Run step is running. Step ID: {}".format(results['StepIds'][0]))
+            print("Run step is running. Step ID: {}".format(
+                results['StepIds'][0]))
 
         return ""
-

@@ -1,7 +1,7 @@
 ###############################################################
 # pytest -v --capture=no tests/test_emr_manager.py
 # pytest -v  tests/test_emr_manager.py
-# pytest -v --capture=no -v --nocapture tests/test_emr_manager.py:Test_emr_manager.<METHIDNAME>
+# pytest -v --capture=no -v --nocapture tests/test_emr_manager.py:Test_emr_manager.<METHODNAME>
 ###############################################################
 from cloudmesh.management.configuration.config import Config
 from cloudmesh.common.util import HEADING

@@ -1,7 +1,7 @@
 ###############################################################
 # pytest -v --capture=no tests/test_emr_openapi.py
 # pytest -v  tests/test_emr_openapi.py
-# pytest -v --capture=no -v --nocapture tests/test_emr_openapi.py:Test_emr_openapi.<METHODNAME>
+# pytest -v --capture=no -v --nocapture tests/test_emr_openapi..py::Test_emr_openapi::<METHODNAME>
 ###############################################################
 from cloudmesh.management.configuration.config import Config
 from cloudmesh.common.run.subprocess import run

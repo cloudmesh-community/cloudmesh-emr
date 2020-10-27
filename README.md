@@ -1,11 +1,11 @@
 # Cloudmesh Elastic Map Reduce 
 
 [![Version](https://img.shields.io/pypi/v/cloudmesh-emr.svg)](https://pypi.python.org/pypi/cloudmesh-emr)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/cloudmesh/cloudmesh-emr/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/cloudmesh/cloudmesh-emr/blob/main/LICENSE)
 [![Python](https://img.shields.io/pypi/pyversions/cloudmesh-emr.svg)](https://pypi.python.org/pypi/cloudmesh-emr)
 [![Format](https://img.shields.io/pypi/format/cloudmesh-emr.svg)](https://pypi.python.org/pypi/cloudmesh-emr)
 [![Status](https://img.shields.io/pypi/status/cloudmesh-emr.svg)](https://pypi.python.org/pypi/cloudmesh-emr)
-[![Travis](https://travis-ci.com/cloudmesh/cloudmesh-emr.svg?branch=master)](https://travis-ci.com/cloudmesh/cloudmesh-emr)
+[![Travis](https://travis-ci.com/cloudmesh/cloudmesh-emr.svg?branch=main)](https://travis-ci.com/cloudmesh/cloudmesh-emr)
 
 ## Introduction
 
